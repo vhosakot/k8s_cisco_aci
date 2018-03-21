@@ -1,0 +1,7 @@
+apiVersion: v1
+name: aci-server
+version: 0.1.0
+description: Helm chart for CCP ACI service to configure ACI in CCP
+home: https://github.com/contiv/ccp_aci_service
+sources:
+  - https://github.com/contiv/ccp_aci_service

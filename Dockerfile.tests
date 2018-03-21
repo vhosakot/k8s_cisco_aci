@@ -1,0 +1,16 @@
+#
+# Dockerfile to test server/allocator.py
+#
+FROM python:2.7.14-stretch
+
+RUN pip install pytest
+
+COPY requirements.txt /tests/requirements.txt
+WORKDIR /tests
+
+RUN pip install -r requirements.txt
+
+COPY server/allocator.py /tests/allocator.py
+COPY server/test_allocator.py /tests/test_allocator.py
+
+ENTRYPOINT ["pytest", "-s"]

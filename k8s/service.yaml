@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ccp-aci-server
+  labels:
+    app: aci-server
+spec:
+  ports:
+  - port: 46802
+    targetPort: 46802
+    protocol: TCP
+    name: http
+  selector:
+    app: aci-server
+  type: ClusterIP

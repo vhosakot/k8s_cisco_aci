@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "aci-server.fullname" . }}
+  labels:
+    app: {{ template "aci-server.name" . }}
+    chart: {{ template "aci-server.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  ports:
+  - port: {{ .Values.CcpAciServer.port }}
+    targetPort: {{ .Values.CcpAciServer.port }}
+    protocol: TCP
+    name: http
+  selector:
+    app: {{ template "aci-server.name" . }}
+    release: {{ .Release.Name }}
+  type: "{{ .Values.service.type }}"

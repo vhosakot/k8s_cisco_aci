@@ -1,0 +1,58 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: ccp-aci-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aci-server
+  template:
+    metadata:
+      labels:
+        app: aci-server
+    spec:
+      volumes:
+      - name: ccp-aci-server-certs-volume
+        emptyDir: {}
+      containers:
+      # ccp aci server
+      - name: ccp-aci-server
+        image: containers.cisco.com/contiv/ccp-aci-service:1.0
+        imagePullPolicy: Always
+        command:
+        - /ccp_aci_server.py
+        - --ip
+        - 0.0.0.0
+        - --port
+        - "46802"
+        - 0.0.0.0:2379
+        ports:
+        - containerPort: 46802
+        # volume is needed to persist the ACI certificates created by the acc-provision tool
+        # (the ACI certificates are needed to delete ACI configs)
+        volumeMounts:
+        - mountPath: /ccp-aci-certs
+          name: ccp-aci-server-certs-volume
+        workingDir: /ccp-aci-certs
+        # livenessProbe to check the health of the service once every 60 seconds
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 46802
+          initialDelaySeconds: 20
+          periodSeconds: 60
+      #
+      # etcd database as sidecar container
+      #
+      - name: ccp-aci-server-etcd
+        image: k8s.gcr.io/etcd-amd64:3.1.11
+        imagePullPolicy: IfNotPresent
+        command:
+        - etcd
+        - --listen-client-urls
+        - http://0.0.0.0:2379
+        - --advertise-client-urls
+        - http://0.0.0.0:2379
+        ports:
+        - containerPort: 2379

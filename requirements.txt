@@ -1,0 +1,9 @@
+etcd3==0.7.0
+iptools==0.6.1
+netaddr==0.7.19
+requests==2.18.4
+Flask==0.12.2
+PyYAML==3.12
+wheel==0.29.0
+pyOpenSSL==16.2.0
+yapf==0.20.2

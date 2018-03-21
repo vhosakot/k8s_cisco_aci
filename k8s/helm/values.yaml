@@ -1,0 +1,45 @@
+# Default values for the CCP's aci-server helm chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into the templates.
+
+# configurations for CCP ACI server
+CcpAciServer:
+  image:
+    repository: containers.cisco.com/contiv/ccp-aci-service
+    tag: "1.0"
+    pullPolicy: Always
+  port: 46802
+
+replicaCount: 1
+
+service:
+  type: ClusterIP
+
+# configurations for etcd sidecar container
+etcd:
+  image:
+    repository: k8s.gcr.io/etcd-amd64
+    tag: 3.1.11
+    pullPolicy: IfNotPresent
+  port: 2379
+
+# the configurations below for resources, nodeSelector, tolerations and affinity
+# will be applied to both the CCP ACI server container and the etcd sidecar
+# container in the pod
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

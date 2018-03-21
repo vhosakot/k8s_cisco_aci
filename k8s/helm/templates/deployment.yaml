@@ -1,0 +1,81 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "aci-server.fullname" . }}
+  labels:
+    app: {{ template "aci-server.name" . }}
+    chart: {{ template "aci-server.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "aci-server.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "aci-server.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      volumes:
+      - name: {{ template "aci-server.fullname" . }}-certs-volume
+        emptyDir: {}
+      containers:
+      # ccp aci server
+      - name: {{ template "aci-server.fullname" . }}
+        image: "{{ .Values.CcpAciServer.image.repository }}:{{ .Values.CcpAciServer.image.tag }}"
+        imagePullPolicy: "{{ .Values.CcpAciServer.image.pullPolicy }}"
+        command:
+        - /ccp_aci_server.py
+        - --ip
+        - 0.0.0.0
+        - --port
+        - "{{ .Values.CcpAciServer.port }}"
+        - 0.0.0.0:{{ .Values.etcd.port }}
+        ports:
+        - containerPort: {{ .Values.CcpAciServer.port }}
+        # volume is needed to persist the ACI certificates created by the acc-provision tool
+        # (the ACI certificates are needed to delete ACI configs)
+        volumeMounts:
+        - mountPath: /ccp-aci-certs
+          name: {{ template "aci-server.fullname" . }}-certs-volume
+        workingDir: /ccp-aci-certs
+        # livenessProbe to check the health of the service once every 60 seconds
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.CcpAciServer.port }}
+          initialDelaySeconds: 20
+          periodSeconds: 60
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+      #
+      # etcd database as sidecar container
+      #
+      - name: {{ template "aci-server.fullname" . }}-etcd
+        image: "{{ .Values.etcd.image.repository }}:{{ .Values.etcd.image.tag }}"
+        imagePullPolicy: "{{ .Values.etcd.image.pullPolicy }}"
+        command:
+        - etcd
+        - --listen-client-urls
+        - http://0.0.0.0:{{ .Values.etcd.port }}
+        - --advertise-client-urls
+        - http://0.0.0.0:{{ .Values.etcd.port }}
+        ports:
+        - containerPort: {{ .Values.etcd.port }}
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
