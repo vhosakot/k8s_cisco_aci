@@ -13,8 +13,13 @@ spec:
         app: aci-server
     spec:
       volumes:
+      # emptyDir volume needed to persist ACI certs and keys
       - name: ccp-aci-server-certs-volume
         emptyDir: {}
+      # configmap volume needed for /aci.conf
+      - name: config-volume
+        configMap:
+          name: ccp-aci-server-configmap
       containers:
       # ccp aci server
       - name: ccp-aci-server
@@ -26,6 +31,8 @@ spec:
         - 0.0.0.0
         - --port
         - "46802"
+        - --config_file
+        - /aci.conf
         - 0.0.0.0:2379
         ports:
         - containerPort: 46802
@@ -34,6 +41,10 @@ spec:
         volumeMounts:
         - mountPath: /ccp-aci-certs
           name: ccp-aci-server-certs-volume
+        # configmap volume for /aci.conf
+        - mountPath: /aci.conf
+          subPath: aci.conf
+          name: config-volume
         workingDir: /ccp-aci-certs
         # livenessProbe to check the health of the service once every 60 seconds
         livenessProbe:

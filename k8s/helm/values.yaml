@@ -14,6 +14,7 @@ replicaCount: 1
 
 service:
   type: ClusterIP
+  port: 46802
 
 # configurations for etcd sidecar container
 etcd:
@@ -22,6 +23,23 @@ etcd:
     tag: 3.1.11
     pullPolicy: IfNotPresent
   port: 2379
+
+# configmap configurations for /aci.conf
+aciConfigFile:
+  aci.conf: |
+    [DEFAULT]
+    DEFAULT_VLAN_MIN = 3130
+
+    # DEFAULT_VLAN_MAX's maximum value is 4095
+    DEFAULT_VLAN_MAX = 3800
+
+    # DEFAULT_MULTICAST_RANGE should be a multicast range
+    DEFAULT_MULTICAST_RANGE = 225.65.0.0/16
+
+    DEFAULT_SERVICE_SUBNET = 100.33.0.0/24
+
+    # DEFAULT_POD_SUBNET has to end with .1
+    DEFAULT_POD_SUBNET = 100.44.55.1/16
 
 # the configurations below for resources, nodeSelector, tolerations and affinity
 # will be applied to both the CCP ACI server container and the etcd sidecar

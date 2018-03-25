@@ -28,7 +28,7 @@ lock = threading.Lock()
 
 
 class CcpAciServer(object):
-    def __init__(self, http_request, etcd_client):
+    def __init__(self, http_request, etcd_client, config_file="aci.conf"):
         self.http_request = http_request
         self.acc_provision_input_YAML = ''.join([
             "acc_provision_input_", http_request["ccp_cluster_name"], ".yaml"
@@ -39,6 +39,7 @@ class CcpAciServer(object):
         self.db_key = self._generate_db_key()
         self.etcd_lock_name = "acc_provision_status_lock"
         self.aci_flavor = self._get_aci_flavor()
+        self.config_file = config_file
 
     # function to generate etcd key for creation_status
     def _generate_db_key(self):
@@ -109,7 +110,7 @@ class CcpAciServer(object):
     # for each tenant cluster and updates the ACI input json used to
     # create configs on ACI
     def update_aci_input_json_for_cluster(self):
-        aci_allocator = allocator.Allocator(self.etcd_client)
+        aci_allocator = allocator.Allocator(self.etcd_client, self.config_file)
         per_cluster_state = aci_allocator.get(
             self.http_request["ccp_cluster_name"])
         if per_cluster_state == {}:
@@ -401,7 +402,8 @@ class CcpAciServer(object):
         else:
             aci_cni_json = json.loads(
                 self.get_from_etcd()[0])["output_aci_cni_yaml"]
-            aci_allocator = allocator.Allocator(self.etcd_client)
+            aci_allocator = allocator.Allocator(self.etcd_client,
+                                                self.config_file)
             per_cluster_allocator_state = aci_allocator.get(
                 self.http_request["ccp_cluster_name"])
             return [per_cluster_allocator_state, aci_cni_json]
@@ -450,7 +452,7 @@ class CcpAciServer(object):
                     cluster_name = ''.join(cluster_name)
 
                     # delete expired allocator state for failed cluster
-                    a = allocator.Allocator(self.etcd_client)
+                    a = allocator.Allocator(self.etcd_client, self.config_file)
                     if a.get(cluster_name) != {}:
                         a.free(cluster_name)
                     print "\n", datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f'),\
@@ -563,7 +565,8 @@ class CcpAciAsyncDelete(threading.Thread):
             self.ccp_aci_server.delete_from_etcd()
             self.ccp_aci_server.delete_stale_key_in_etcd()
             aci_allocator = allocator.Allocator(
-                self.ccp_aci_server.etcd_client)
+                self.ccp_aci_server.etcd_client,
+                self.ccp_aci_server.config_file)
             if aci_allocator.get(self.ccp_aci_server.
                                  http_request["ccp_cluster_name"]) != {}:
                 # free state stored by server/allocator.py

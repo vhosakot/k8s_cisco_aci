@@ -46,6 +46,10 @@ parser.add_argument(
     type=int,
     default=46802)
 parser.add_argument(
+    '--config_file',
+    help='Path to config file. Default is aci.conf',
+    default='aci.conf')
+parser.add_argument(
     'etcd_ip_port',
     help="etcd server's IP address or DNS name and port in the " \
          "format <etcd's IP or DNS name>:<etcd port>")
@@ -131,7 +135,8 @@ def acc_provision_create():
 
         global etcd_client
 
-        ccp_aci_server = CcpAciServer(request.json, etcd_client)
+        ccp_aci_server = CcpAciServer(request.json, etcd_client,
+                                      args.config_file)
 
         # block duplicate cluster name in etcd
         if ccp_aci_server.cluster_name_is_duplicate():
@@ -182,7 +187,8 @@ def acc_provision_status():
 
         global etcd_client
 
-        ccp_aci_server = CcpAciServer(request.json, etcd_client)
+        ccp_aci_server = CcpAciServer(request.json, etcd_client,
+                                      args.config_file)
 
         allocator_state, aci_cni = ccp_aci_server.get_aci_cni_for_cluster_from_etcd(
         )
@@ -231,7 +237,8 @@ def acc_provision_delete():
 
         global etcd_client
 
-        ccp_aci_server = CcpAciServer(request.json, etcd_client)
+        ccp_aci_server = CcpAciServer(request.json, etcd_client,
+                                      args.config_file)
 
         async_task = CcpAciAsyncDelete(ccp_aci_server)
 

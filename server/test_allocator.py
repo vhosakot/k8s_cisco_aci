@@ -95,6 +95,8 @@ def test_reservations():
     assert foo[Allocator.MULTICAST_RANGE_START_KEY] == start_address
     assert foo[Allocator.MULTICAST_RANGE_END_KEY] == end_address
 
+    assert foo[Allocator.POD_SUBNET_KEY] == Allocator.DEFAULT_POD_SUBNET
+
     bar = a.reserve("bar")
 
     assert bar[Allocator.KUBEAPI_VLAN_KEY] == Allocator.DEFAULT_VLAN_MIN + 2
@@ -108,6 +110,9 @@ def test_reservations():
 
     assert bar[Allocator.MULTICAST_RANGE_START_KEY] == start_address
     assert bar[Allocator.MULTICAST_RANGE_END_KEY] == end_address
+
+    pod_subnet = generate_next_subnet(Allocator.DEFAULT_POD_SUBNET, "/16")
+    assert bar[Allocator.POD_SUBNET_KEY] == pod_subnet
 
     a.free("bar")
     a.free("foo")

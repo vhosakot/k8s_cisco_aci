@@ -72,7 +72,7 @@ The `ccp-test-aci-server` k8s service above is of type `ClusterIP`.
 $ minikube ssh "curl 10.99.93.214:46802"
 {
   "acc-provision": {
-    "git_sha1": "5e3989dd4b454ccc84bcf6bba0bb36aebecf1920", 
+    "git_sha1": "e63ecc090cf60f381563b754c170ac09b7edc943", 
     "url": [
       "HTTP POST   /api/v1/acc_provision_create", 
       "HTTP DELETE /api/v1/acc_provision_delete", 
@@ -82,6 +82,71 @@ $ minikube ssh "curl 10.99.93.214:46802"
     "version": "1.8.0"
   }
 }
+```
+
+#### Check the `ccp-test-aci-server` and `ccp-test-aci-server-etcd` containers in the pod and their images
+
+```
+$ kubectl describe pod ccp-test-aci-server-6d64f959d5-j4qg5 | grep 'aci-server:\|aci-server-etcd:\|Image:'
+  ccp-test-aci-server:
+    Image:         containers.cisco.com/contiv/ccp-aci-service:1.0
+  ccp-test-aci-server-etcd:
+    Image:         k8s.gcr.io/etcd-amd64:3.1.11
+```
+
+#### Check the `ccp-test-aci-server-configmap` configmap
+
+```
+$ kubectl get configmaps | grep aci
+ccp-test-aci-server-configmap     1         1m
+
+$ kubectl describe configmap ccp-test-aci-server-configmap
+Name:         ccp-test-aci-server-configmap
+Namespace:    default
+Labels:       app=aci-server
+              chart=aci-server-0.1.0
+              heritage=Tiller
+              release=ccp-test
+Annotations:  <none>
+
+Data
+====
+aci.conf:
+----
+[DEFAULT]
+DEFAULT_VLAN_MIN = 3130
+
+# DEFAULT_VLAN_MAX's maximum value is 4095
+DEFAULT_VLAN_MAX = 3800
+
+# DEFAULT_MULTICAST_RANGE should be a multicast range
+DEFAULT_MULTICAST_RANGE = 225.65.0.0/16
+
+DEFAULT_SERVICE_SUBNET = 100.33.0.0/24
+
+# DEFAULT_POD_SUBNET has to end with .1
+DEFAULT_POD_SUBNET = 100.44.55.1/16
+
+Events:  <none>
+```
+
+#### Check contents of the configmap for aci.conf inside the `ccp-test-aci-server` container
+
+```
+$ kubectl exec ccp-test-aci-server-6d64f959d5-j4qg5 -c=ccp-test-aci-server cat /aci.conf
+[DEFAULT]
+DEFAULT_VLAN_MIN = 3130
+
+# DEFAULT_VLAN_MAX's maximum value is 4095
+DEFAULT_VLAN_MAX = 3800
+
+# DEFAULT_MULTICAST_RANGE should be a multicast range
+DEFAULT_MULTICAST_RANGE = 225.65.0.0/16
+
+DEFAULT_SERVICE_SUBNET = 100.33.0.0/24
+
+# DEFAULT_POD_SUBNET has to end with .1
+DEFAULT_POD_SUBNET = 100.44.55.1/16
 ```
 
 #### (Optional) Check the stdout logs of the `ccp-test-aci-server` container in the `ccp-test-aci-server-6d64f959d5-j4qg5` pod
@@ -119,10 +184,12 @@ Parameter | Description | Default value
 `CcpAciServer.port` | Port in the container listened by the CCP ACI service | `46802`
 `replicaCount` | Number of replicas of the k8s pod | `1`
 `service.type` | k8s service type for CCP ACI server | `ClusterIP`
+`service.port` | `port` and `targetPort` for the k8s service | `46802`
 `etcd.image.repository` | etcd Docker image | `k8s.gcr.io/etcd-amd64`
 `etcd.image.tag` | Docker tag of etcd Docker image | `3.1.11`
 `etcd.image.pullPolicy` | k8s' `pullPolicy` for etcd Docker image | `IfNotPresent`
 `etcd.port` | Port in the container listened by etcd | `2379`
+`aciConfigFile` | configmap configurations for `/aci.conf` | refer `values.yaml`
 `resources` | k8s CPU and memory resources for the deployment | `{}`
 `nodeSelector` | k8s nodeSelector values | `{}`
 `tolerations` | k8s tolerations | `[]`

@@ -9,8 +9,8 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   ports:
-  - port: {{ .Values.CcpAciServer.port }}
-    targetPort: {{ .Values.CcpAciServer.port }}
+  - port: {{ .Values.service.port }}
+    targetPort: {{ .Values.service.port }}
     protocol: TCP
     name: http
   selector:

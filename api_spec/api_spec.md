@@ -43,7 +43,6 @@ create and update this sample input json below in the client.
     "k8s_version": "1.7", 
     "aci_input_json": {
         "net_config": {
-            "pod_subnet": "1.60.0.1/16", 
             "extern_static": "1.4.0.1/24", 
             "infra_vlan": 4093, 
             "extern_dynamic": "1.3.0.1/24", 
@@ -777,6 +776,7 @@ Refer the python function `convert_json_to_aci_cni_yaml()` in the sample python 
     "allocator_state": {
         "net_config.service_vlan": 2121, 
         "net_config.node_svc_subnet": "10.5.0.0/24", 
+        "net_config.pod_subnet": "10.50.0.1/16", 
         "aci_config.vmm_domain.mcast_range.end": "225.32.255.255", 
         "net_config.kubeapi_vlan": 2120, 
         "aci_config.system_id": "my_cluster_1", 
@@ -784,6 +784,8 @@ Refer the python function `convert_json_to_aci_cni_yaml()` in the sample python 
     }
 }
 ```
+
+Make sure that the `my_cluster_1` tenant is created in the "Tenants" tab in the ACI APIC fabric at https://10.23.231.5.
 
 HTTP status code `200` when creation of ACI configs is in progress:
 
@@ -831,6 +833,8 @@ HTTP status code `404` from `HTTP GET` from endpoint `/api/v1/acc_provision_stat
     "error": "ERROR: ACI CNI not found for cluster. Use http endpoint /api/v1/acc_provision_create to create (POST) configs on ACI first, and then use this endpoint to get the ACI CNI for the cluster. If http endpoint /api/v1/acc_provision_delete was used to delete the ACI configs, then this message means the deletion was successful."
 }
 ```
+
+Make sure that the `my_cluster_1` tenant is deleted in the "Tenants" tab in the ACI APIC fabric at https://10.23.231.5.
 
 ## `curl` (`HTTP GET` from endpoint `/`) to see the REST API operations supported and versions
 

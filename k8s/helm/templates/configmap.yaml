@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "aci-server.fullname" . }}-configmap
+  labels:
+    app: {{ template "aci-server.name" . }}
+    chart: {{ template "aci-server.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+{{ toYaml .Values.aciConfigFile | indent 2 }}

@@ -7,3 +7,4 @@ PyYAML==3.12
 wheel==0.29.0
 pyOpenSSL==16.2.0
 yapf==0.20.2
+configparser==3.5.0

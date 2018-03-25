@@ -18,7 +18,7 @@ install:
 	apt-get -y autoremove
 	pip install --upgrade pip
 	pip install -r requirements.txt
-	dpkg -i acc-provision/acc-provision_1.8.0-30_amd64.deb
+	dpkg -i acc-provision/acc-provision_1.8.1-42_amd64.deb
 	acc-provision -v
 
 tests:

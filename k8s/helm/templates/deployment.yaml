@@ -20,8 +20,13 @@ spec:
         release: {{ .Release.Name }}
     spec:
       volumes:
+      # emptyDir volume needed to persist ACI certs and keys
       - name: {{ template "aci-server.fullname" . }}-certs-volume
         emptyDir: {}
+      # configmap volume needed for /aci.conf
+      - name: config-volume
+        configMap:
+          name: {{ template "aci-server.fullname" . }}-configmap
       containers:
       # ccp aci server
       - name: {{ template "aci-server.fullname" . }}
@@ -33,6 +38,8 @@ spec:
         - 0.0.0.0
         - --port
         - "{{ .Values.CcpAciServer.port }}"
+        - --config_file
+        - /aci.conf
         - 0.0.0.0:{{ .Values.etcd.port }}
         ports:
         - containerPort: {{ .Values.CcpAciServer.port }}
@@ -41,6 +48,10 @@ spec:
         volumeMounts:
         - mountPath: /ccp-aci-certs
           name: {{ template "aci-server.fullname" . }}-certs-volume
+        # configmap volume for /aci.conf
+        - mountPath: /aci.conf
+          subPath: aci.conf
+          name: config-volume
         workingDir: /ccp-aci-certs
         # livenessProbe to check the health of the service once every 60 seconds
         livenessProbe:

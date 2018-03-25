@@ -221,6 +221,8 @@ aci-containers-openvswitch-ppmsd                     1/1       Running          
 aci-containers-openvswitch-ttnrj                     1/1       Running            0          3m
 ```
 
+Make sure that the `my_cluster1` tenant is created in the "Tenants" tab in the ACI APIC fabric at https://10.23.231.5.
+
 #### (Optional) Check the state stored by the CCP ACI service in etcd database
 
 ```
@@ -257,6 +259,8 @@ HTTP response =  {
 
 The above HTTP return code `404` means that the ACI configurations were successfully deleted on the ACI fabric.
 
+Make sure that the `my_cluster1` tenant is deleted in the "Tenants" tab in the ACI APIC fabric at https://10.23.231.5.
+
 #### Stop the containers, remove them and remove the images
 
 ```
@@ -280,7 +284,9 @@ APIC OpenStack and Container Plugins --> 3.1 --> Debian packages for ACI Kuberne
 
 * The API spec for HTTP clients are in the directory `api_spec/api_spec.md`.
 
-* `sudo make install` will install the `acc-provision` tool along with the required `pip` and `apt-get` dependecies needed for this repo.
+* `sudo make install` will install the `acc-provision` tool along with the required `pip` and `apt-get` dependecies needed for this repo on an Ubuntu host.
+
+* The ACI configurations for `server/allocator.py` can be specified in `server/aci.conf` and in the configMap `k8s/configmap.yaml` on kubernetes.
 
 #### Testing
 

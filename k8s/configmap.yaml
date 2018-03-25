@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: aci-server
+  name: ccp-aci-server-configmap
+data:
+  aci.conf: |
+    [DEFAULT]
+    DEFAULT_VLAN_MIN = 3130
+
+    # DEFAULT_VLAN_MAX's maximum value is 4095
+    DEFAULT_VLAN_MAX = 3800
+
+    # DEFAULT_MULTICAST_RANGE should be a multicast range
+    DEFAULT_MULTICAST_RANGE = 225.65.0.0/16
+
+    DEFAULT_SERVICE_SUBNET = 100.33.0.0/24
+
+    # DEFAULT_POD_SUBNET has to end with .1
+    DEFAULT_POD_SUBNET = 100.44.55.1/16
